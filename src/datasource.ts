@@ -76,7 +76,8 @@ export default class GnocchiDatasource {
             'start': options.range.from.toISOString(),
             'end': null,
             'stop': null,
-            'granularity': null
+            'granularity': null,
+            'needed_overlap': null
           }
         };
         if (options.range.to){
@@ -98,6 +99,7 @@ export default class GnocchiDatasource {
         var metric_id;
         var label;
         var granularity;
+        var needed_overlap;
 
         try {
           metric_name = self.templateSrv.replace(target.metric_name);
@@ -107,6 +109,7 @@ export default class GnocchiDatasource {
           metric_id = self.templateSrv.replace(target.metric_id);
           label = self.templateSrv.replace(target.label);
           granularity = self.templateSrv.replace(target.granularity);
+          needed_overlap = self.templateSrv.replace(target.needed_overlap);
         } catch (err) {
           return self.$q.reject(err);
         }
@@ -136,6 +139,9 @@ export default class GnocchiDatasource {
                                       resource_type + '/metric/' + metric_name);
           default_measures_req.method = 'POST';
           default_measures_req.data = resource_search;
+          if (needed_overlap !== '') {
+              default_measures_req.params.needed_overlap = needed_overlap;
+          }
           return self._retrieve_measures(label || "unlabeled", default_measures_req);
 
         } else if (target.queryMode === "resource") {
